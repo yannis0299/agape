@@ -1,3 +1,7 @@
+# Target directory & executable
+target/
+agapec
+
 # Prerequisites
 *.d
 
