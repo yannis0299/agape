@@ -1,0 +1,66 @@
+#ifndef TOKENIZER_H
+#define TOKENIZER_H
+
+#include "arena.h"
+#include "generics.h"
+#include "prelude.h"
+#include "str.h"
+#include "translation_unit.h"
+
+typedef enum {
+  TOKEN_INTEGER,
+  TOKEN_IDENTIFIER,
+  TOKEN_OPERATOR,
+  TOKEN_LEFT_PAREN,
+  TOKEN_RIGHT_PAREN,
+  TOKEN_LEFT_BRACKET,
+  TOKEN_RIGHT_BRACKET,
+  TOKEN_LEFT_PRAGMA,
+  TOKEN_RIGHT_PRAGMA,
+  TOKEN_BACKSLASH,
+  TOKEN_COMMA,
+  TOKEN_EQUAL,
+  TOKEN_RIGHT_FATARROW,
+  TOKEN_MATCH,
+  TOKEN_WITH,
+  TOKEN_WHERE,
+  TOKEN_EOL,
+  TOKEN_EOF,
+  TOKEN_MAX_KIND,
+} token_kind_t;
+
+static const char *TOKEN_PRINT_TABLE[TOKEN_MAX_KIND] = {
+    "TOKEN_INTEGER",        "TOKEN_IDENTIFIER",  "TOKEN_OPERATOR",
+    "TOKEN_LEFT_PAREN",     "TOKEN_RIGHT_PAREN", "TOKEN_LEFT_BRACKET",
+    "TOKEN_RIGHT_BRACKET",  "TOKEN_LEFT_PRAGMA", "TOKEN_RIGHT_PRAGMA",
+    "TOKEN_BACKSLASH",      "TOKEN_COMMA",       "TOKEN_EQUAL",
+    "TOKEN_RIGHT_FATARROW", "TOKEN_MATCH",       "TOKEN_WITH",
+    "TOKEN_WHERE",          "TOKEN_EOL",         "TOKEN_EOF",
+};
+
+typedef struct {
+  token_kind_t kind;
+  usize line, column;
+  usize start, span;
+  str_t repr;
+} token_t;
+
+impl_generics(token_t, token);
+
+typedef struct {
+  TU_t *tu;
+  usize line, column, pos;
+  vec_token_t tokens;
+} tokenizer_t;
+
+tokenizer_t tokenizer_new_from_tu(TU_t *tu);
+
+char tokenizer_peek_char(tokenizer_t *self);
+
+char tokenizer_next_char(tokenizer_t *self);
+
+token_t *tokenizer_next(tokenizer_t *self);
+
+void tokenizer_exhaust(tokenizer_t *self);
+
+#endif // TOKENIZER_H

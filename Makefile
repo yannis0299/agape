@@ -1,4 +1,4 @@
-SRC_DIRS   := .
+SRC_DIRS   := src
 VCS_DIR    := .git
 BUILD_DIR  := target
 EXECUTABLE := agapec
@@ -7,7 +7,7 @@ SRCS := $(shell find $(SRC_DIRS) -name *.c -or -name *.s)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
-INC_DIRS  := $(shell find $(SRC_DIRS) -type d -not -path "./$(BUILD_DIR)" -not -path "./$(VCS_DIR)" -not -path "./$(VCS_DIR)*")
+INC_DIRS  := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CC      := clang-20
