@@ -9,7 +9,6 @@ uncurry f xy =
 
 curry f x y = f (x,y)
 
-{- below is a pragma (and this is a comment btw) -}
 {: infix(right, 9) :}
 (.) f g x = g (f x)
 
