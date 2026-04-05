@@ -74,18 +74,20 @@ typedef struct {
   static inline void display_vec_##name(vec_##name##_t *self, fmt_t *fmt) {    \
     fprintf(fmt->stream, "%*s", (i32)fmt->pad, "");                            \
     fprintf(fmt->stream, "[\n");                                               \
-    fmt->pad += 2;                                                             \
-    for (usize idx = 0; idx < self->len - 1; idx++) {                          \
-      fprintf(fmt->stream, "%*s", (i32)fmt->pad, "");                          \
-      display_##name(self->raw + idx, fmt);                                    \
-      fprintf(fmt->stream, ",\n");                                             \
+    if (self->len != 0) {                                                      \
+      fmt->pad += 2;                                                           \
+      for (usize idx = 0; idx < self->len - 1; idx++) {                        \
+        fprintf(fmt->stream, "%*s", (i32)fmt->pad, "");                        \
+        display_##name(self->raw + idx, fmt);                                  \
+        fprintf(fmt->stream, ",\n");                                           \
+      }                                                                        \
+      if (self->len > 0) {                                                     \
+        fprintf(fmt->stream, "%*s", (i32)fmt->pad, "");                        \
+        display_##name(self->raw + self->len - 1, fmt);                        \
+        fprintf(fmt->stream, "\n");                                            \
+      }                                                                        \
+      fmt->pad -= 2;                                                           \
     }                                                                          \
-    if (self->len > 0) {                                                       \
-      fprintf(fmt->stream, "%*s", (i32)fmt->pad, "");                          \
-      display_##name(self->raw + self->len - 1, fmt);                          \
-      fprintf(fmt->stream, "\n");                                              \
-    }                                                                          \
-    fmt->pad -= 2;                                                             \
     fprintf(fmt->stream, "%*s", (i32)fmt->pad, "");                            \
     fprintf(fmt->stream, "]\n");                                               \
   }
