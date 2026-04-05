@@ -1,6 +1,8 @@
 #ifndef TOKENIZER_H
 #define TOKENIZER_H
 
+#include <stdio.h>
+
 #include "arena.h"
 #include "generics.h"
 #include "prelude.h"
@@ -44,6 +46,14 @@ typedef struct {
   usize start, span;
   str_t repr;
 } token_t;
+
+impl_display(token_t, token) {
+  fprintf(
+      fmt->stream,
+      "Token(%-20s, line=%zu, column=%zu, start=%zu, span=%zu, repr=\"%s\")",
+      TOKEN_PRINT_TABLE[self->kind], self->line, self->column, self->start,
+      self->span, (self->kind != TOKEN_EOL) ? ((char *)self->repr.raw) : "\\n");
+}
 
 impl_generics(token_t, token);
 
