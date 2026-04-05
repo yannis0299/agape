@@ -1,21 +1,12 @@
-uncurry f xy =
-    match xy with
-        (x,y) => f x y
+flip f x y = f y x
 
-curry f x y = f (x,y)
+{: intrinsics :}
+{: infix left 6 :}
+(+) = !
 
-{: infix(right, 9) :}
-(.) f g x = g (f x)
-
-fib = fib' 0 1
-    where
-        fib' u v n = fib' v (u + v) (n - 1)
-
-fold f acc xs =
-    match xs with
-        [] => acc
-        x :: xs => fold f (f x acc) xs
-
-rev = fold (::) []
-
-main = rev $ [1, 2, 3]
+main = id foo
+  where
+    id = id' . id'
+      where
+        id' x = x
+    foo = 12
