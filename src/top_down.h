@@ -11,6 +11,7 @@
 #include "translation_unit.h"
 
 typedef enum {
+  BLOCK_TOP_LEVEL,
   BLOCK_BIND_EXPR,
   BLOCK_PRAGMA,
   BLOCK_LEAF,
@@ -18,6 +19,7 @@ typedef enum {
 } block_kind_t;
 
 static const char *BLOCK_PRINT_TABLE[BLOCK_MAX_KIND] = {
+    "BLOCK_TOP_LEVEL",
     "BLOCK_BIND_EXPR",
     "BLOCK_PRAGMA",
     "BLOCK_LEAF",
@@ -25,46 +27,11 @@ static const char *BLOCK_PRINT_TABLE[BLOCK_MAX_KIND] = {
 
 typedef struct _block {
   block_kind_t kind;
-  union {
-    struct {
-      slice_token_t lhs;
-      struct _block *rhs;
-    } bind_expr;
-    struct {
-      slice_token_t args;
-    } pragma;
-    struct {
-      slice_token_t expr;
-    } leaf;
-  } as;
-  struct _block *next;
+  vec_token_t lhs;
+  struct _block *rhs;
 } block_t;
 
-impl_display(block_t, block) {
-  fprintf(fmt->stream, "Block(%-20s, \n", BLOCK_PRINT_TABLE[self->kind]);
-  fprintf(fmt->stream, "%*s", (int)fmt->pad, "");
-  switch (self->kind) {
-  case BLOCK_BIND_EXPR:
-    fprintf(fmt->stream, "lhs=%p[%zu], rhs=", self->as.bind_expr.lhs.ptr,
-            self->as.bind_expr.lhs.len);
-    fmt->pad += 2;
-    display_block(self->as.bind_expr.rhs, fmt);
-    fmt->pad -= 2;
-    break;
-  case BLOCK_PRAGMA:
-    fprintf(fmt->stream, "args=%p[%zu]\n", self->as.pragma.args.ptr,
-            self->as.pragma.args.len);
-    break;
-  case BLOCK_LEAF:
-    fprintf(fmt->stream, "args=%p[%zu]\n", self->as.leaf.expr.ptr,
-            self->as.leaf.expr.len);
-    break;
-  case BLOCK_MAX_KIND:
-    break;
-  }
-  fprintf(fmt->stream, "%*s", (int)fmt->pad, "");
-  fprintf(fmt->stream, ")\n");
-}
+void display_block(block_t *self, fmt_t *fmt);
 
 impl_generics(block_t, block);
 

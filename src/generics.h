@@ -72,7 +72,6 @@ typedef struct {
   }                                                                            \
                                                                                \
   static inline void display_vec_##name(vec_##name##_t *self, fmt_t *fmt) {    \
-    fprintf(fmt->stream, "%*s", (i32)fmt->pad, "");                            \
     fprintf(fmt->stream, "[\n");                                               \
     if (self->len != 0) {                                                      \
       fmt->pad += 2;                                                           \
@@ -89,7 +88,7 @@ typedef struct {
       fmt->pad -= 2;                                                           \
     }                                                                          \
     fprintf(fmt->stream, "%*s", (i32)fmt->pad, "");                            \
-    fprintf(fmt->stream, "]\n");                                               \
+    fprintf(fmt->stream, "]");                                                 \
   }
 
 #define impl_generics(T, name)                                                 \

@@ -21,6 +21,7 @@ i32 main(i32 argc, char *argv[]) {
 
   printf("--- Blocks: -------------------\n");
   top_down_t top_down = top_down_new_from_tokenizer(&tokenizer);
+  top_down_exhaust(&top_down);
   println(vec_block, &top_down.stack);
 
   ga_destroy();

@@ -91,11 +91,8 @@ usize tokenizer_integer(tokenizer_t *self) {
     }                                                                          \
   }
 
-static const char *TOKENIZER_RESERVED_NAMES[] = {
-    "match",
-    "with",
-    "where",
-};
+static const char *TOKENIZER_RESERVED_NAMES[] = {"match", "with", "where", "do",
+                                                 "let"};
 
 usize tokenizer_identifier(tokenizer_t *self) {
   usize pos = self->pos;
@@ -132,7 +129,7 @@ void tokenizer_skip_whitespaces_and_comments(tokenizer_t *self) {
   // TODO: Eat comments as well
 }
 
-static const char *TOKENIZER_RESERVED_OPERATORS[] = {"\\", "=>", "="};
+static const char *TOKENIZER_RESERVED_OPERATORS[] = {"\\", "=>", "=", "<-"};
 
 static inline i32 op_letter(char c) {
   // ':', '!', '#', '$', '%', '&', '*', '+', '.', '/', '<', '=', '>', '@',
@@ -228,6 +225,12 @@ token_t *tokenizer_next(tokenizer_t *self) {
   // Match right bracket character
   TOKENIZER_MATCH(tokenizer_single(self, ']'), TOKEN_RIGHT_BRACKET);
 
+  // Match left brace character
+  TOKENIZER_MATCH(tokenizer_single(self, '{'), TOKEN_LEFT_BRACE);
+
+  // Match right brace character
+  TOKENIZER_MATCH(tokenizer_single(self, '}'), TOKEN_RIGHT_BRACE);
+
   // Match comma character
   TOKENIZER_MATCH(tokenizer_single(self, ','), TOKEN_COMMA);
 
@@ -237,6 +240,12 @@ token_t *tokenizer_next(tokenizer_t *self) {
   // Match equal character
   TOKENIZER_MATCH(tokenizer_single(self, '='), TOKEN_EQUAL);
 
+  // Match colon character
+  TOKENIZER_MATCH(tokenizer_single(self, ':'), TOKEN_COLON);
+
+  // Match semi-colon character
+  TOKENIZER_MATCH(tokenizer_single(self, ';'), TOKEN_SEMICOLON);
+
   // Match match keyword token
   TOKENIZER_MATCH(tokenizer_multiple(self, "match"), TOKEN_MATCH);
 
@@ -245,6 +254,15 @@ token_t *tokenizer_next(tokenizer_t *self) {
 
   // Match where keyword token
   TOKENIZER_MATCH(tokenizer_multiple(self, "where"), TOKEN_WHERE);
+
+  // Match do keyword token
+  TOKENIZER_MATCH(tokenizer_multiple(self, "do"), TOKEN_DO);
+
+  // Match let keyword token
+  TOKENIZER_MATCH(tokenizer_multiple(self, "let"), TOKEN_LET);
+
+  // Match left-arrow keyword token
+  TOKENIZER_MATCH(tokenizer_multiple(self, "<-"), TOKEN_LEFT_ARROW);
 
   // If nothing is matched
   eyre_bail("tokenizer_next: could not match any token at %zu:%zu", line,
