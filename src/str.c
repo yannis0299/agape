@@ -19,6 +19,7 @@ str_t str_from(const char *src) {
   usize len = strlen(src);
   str_t self = str_new(len + 1);
   strncpy((char *)self.raw, src, len);
+  self.len = len;
   self.raw[self.len] = '\0';
   return self;
 }

@@ -45,54 +45,55 @@ usize tokenizer_single(tokenizer_t *self, char e) {
     return 0;
 }
 
-usize tokenizer_multiple(tokenizer_t *self, const char *e) {
-  usize len = strlen(e);
-  char c;
-  for (usize idx = 0; idx < len; idx++) {
-    if ((c = tokenizer_peek_char(self)) && e[idx] == c) {
-      tokenizer_next_char(self);
-    } else {
-      return 0;
-    }
-  }
-  return len;
-}
+/* usize tokenizer_multiple(tokenizer_t *self, const char *e) { */
+/*   usize len = strlen(e); */
+/*   char c; */
+/*   for (usize idx = 0; idx < len; idx++) { */
+/*     if ((c = tokenizer_peek_char(self)) && e[idx] == c) { */
+/*       tokenizer_next_char(self); */
+/*     } else { */
+/*       return 0; */
+/*     } */
+/*   } */
+/*   return len; */
+/* } */
 
-usize tokenizer_integer(tokenizer_t *self) {
-  usize span = 0;
-  char c;
-  i32 seen_digit = 0;
+/* usize tokenizer_integer(tokenizer_t *self) { */
+/*   usize span = 0; */
+/*   char c; */
+/*   i32 seen_digit = 0; */
 
-  c = tokenizer_peek_char(self);
-  if (c == '-') {
-    tokenizer_next_char(self);
-    span++;
-  }
+/*   c = tokenizer_peek_char(self); */
+/*   if (c == '-') { */
+/*     tokenizer_next_char(self); */
+/*     span++; */
+/*   } */
 
-  while ((c = tokenizer_peek_char(self)) && isdigit(c)) {
-    seen_digit = 1;
-    tokenizer_next_char(self);
-    span++;
-  }
+/*   while ((c = tokenizer_peek_char(self)) && isdigit(c)) { */
+/*     seen_digit = 1; */
+/*     tokenizer_next_char(self); */
+/*     span++; */
+/*   } */
 
-  if (span >= 2 || seen_digit) {
-    return span;
-  } else {
-    return 0;
-  }
-}
+/*   if (span >= 2 || seen_digit) { */
+/*     return span; */
+/*   } else { */
+/*     return 0; */
+/*   } */
+/* } */
 
-#define TOKENIZER_RESERVED_GUARD(table, str)                                   \
-  usize tlen = sizeof(table) / sizeof(table[0]);                               \
-  for (usize idx = 0; idx < tlen; idx++) {                                     \
-    usize slen = strlen(table[idx]);                                           \
-    if ((slen == span) && strncmp(str, table[idx], span) == 0) {               \
-      return 0;                                                                \
-    }                                                                          \
-  }
+/* #define TOKENIZER_RESERVED_GUARD(table, str) \ */
+/*   usize tlen = sizeof(table) / sizeof(table[0]); \ */
+/*   for (usize idx = 0; idx < tlen; idx++) { \ */
+/*     usize slen = strlen(table[idx]); \ */
+/*     if ((slen == span) && strncmp(str, table[idx], span) == 0) { \ */
+/*       return 0; \ */
+/*     } \ */
+/*   } */
 
-static const char *TOKENIZER_RESERVED_NAMES[] = {"match", "with", "where", "do",
-                                                 "let"};
+/* static const char *TOKENIZER_RESERVED_NAMES[] = {"match", "with", "where",
+ * "do", */
+/*                                                  "let"}; */
 
 usize tokenizer_identifier(tokenizer_t *self) {
   usize pos = self->pos;
@@ -113,8 +114,8 @@ usize tokenizer_identifier(tokenizer_t *self) {
       tokenizer_next_char(self);
       span++;
     }
-    TOKENIZER_RESERVED_GUARD(TOKENIZER_RESERVED_NAMES,
-                             ((char *)self->tu->contents.raw + pos));
+    /* TOKENIZER_RESERVED_GUARD(TOKENIZER_RESERVED_NAMES, */
+    /*                          ((char *)self->tu->contents.raw + pos)); */
     return span;
   } else {
     return 0;
@@ -126,41 +127,41 @@ void tokenizer_skip_whitespaces_and_comments(tokenizer_t *self) {
   char c;
   while ((c = tokenizer_peek_char(self)) && c == ' ')
     tokenizer_next_char(self);
-  // TODO: Eat comments as well
 }
 
-static const char *TOKENIZER_RESERVED_OPERATORS[] = {"\\", "=>", "=", "<-"};
+/* static const char *TOKENIZER_RESERVED_OPERATORS[] = {"\\", "=>", "=", "<-"};
+ */
 
-static inline i32 op_letter(char c) {
-  // ':', '!', '#', '$', '%', '&', '*', '+', '.', '/', '<', '=', '>', '@',
-  // '\\',
-  // '^', '|', '-', '~'
-  return (c == ':' || c == '!' || c == '#' || c == '$' || c == '%' ||
-          c == '&' || c == '*' || c == '+' || c == '.' || c == '/' ||
-          c == '<' || c == '=' || c == '>' || c == '@' || c == '\\' ||
-          c == '^' || c == '|' || c == '-' || c == '~');
-}
+/* static inline i32 op_letter(char c) { */
+/*   // ':', '!', '#', '$', '%', '&', '*', '+', '.', '/', '<', '=', '>', '@', */
+/*   // '\\', */
+/*   // '^', '|', '-', '~' */
+/*   return (c == ':' || c == '!' || c == '#' || c == '$' || c == '%' || */
+/*           c == '&' || c == '*' || c == '+' || c == '.' || c == '/' || */
+/*           c == '<' || c == '=' || c == '>' || c == '@' || c == '\\' || */
+/*           c == '^' || c == '|' || c == '-' || c == '~'); */
+/* } */
 
-usize tokenizer_operator(tokenizer_t *self) {
-  usize pos = self->pos;
-  usize span = 0;
-  char c;
+/* usize tokenizer_operator(tokenizer_t *self) { */
+/*   usize pos = self->pos; */
+/*   usize span = 0; */
+/*   char c; */
 
-  c = tokenizer_peek_char(self);
-  if (op_letter(c)) {
-    tokenizer_next_char(self);
-    span++;
-    while ((c = tokenizer_peek_char(self)) && op_letter(c)) {
-      tokenizer_next_char(self);
-      span++;
-    }
-    TOKENIZER_RESERVED_GUARD(TOKENIZER_RESERVED_OPERATORS,
-                             ((char *)self->tu->contents.raw + pos));
-    return span;
-  } else {
-    return 0;
-  }
-}
+/*   c = tokenizer_peek_char(self); */
+/*   if (op_letter(c)) { */
+/*     tokenizer_next_char(self); */
+/*     span++; */
+/*     while ((c = tokenizer_peek_char(self)) && op_letter(c)) { */
+/*       tokenizer_next_char(self); */
+/*       span++; */
+/*     } */
+/*     TOKENIZER_RESERVED_GUARD(TOKENIZER_RESERVED_OPERATORS, */
+/*                              ((char *)self->tu->contents.raw + pos)); */
+/*     return span; */
+/*   } else { */
+/*     return 0; */
+/*   } */
+/* } */
 
 token_t *tokenizer_next(tokenizer_t *self) {
   tokenizer_skip_whitespaces_and_comments(self);
@@ -190,19 +191,19 @@ token_t *tokenizer_next(tokenizer_t *self) {
   }
 
   // Match left pragma keyword
-  TOKENIZER_MATCH(tokenizer_multiple(self, "{:"), TOKEN_LEFT_PRAGMA);
+  /* TOKENIZER_MATCH(tokenizer_multiple(self, "{:"), TOKEN_LEFT_PRAGMA); */
 
-  // Match right pragma keyword
-  TOKENIZER_MATCH(tokenizer_multiple(self, ":}"), TOKEN_RIGHT_PRAGMA);
+  /* // Match right pragma keyword */
+  /* TOKENIZER_MATCH(tokenizer_multiple(self, ":}"), TOKEN_RIGHT_PRAGMA); */
 
-  // Match integer literal
-  TOKENIZER_MATCH(tokenizer_integer(self), TOKEN_INTEGER);
+  /* // Match integer literal */
+  /* TOKENIZER_MATCH(tokenizer_integer(self), TOKEN_INTEGER); */
 
   // Match identifier token
   TOKENIZER_MATCH(tokenizer_identifier(self), TOKEN_IDENTIFIER);
 
-  // Match operator token
-  TOKENIZER_MATCH(tokenizer_operator(self), TOKEN_OPERATOR);
+  /* // Match operator token */
+  /* TOKENIZER_MATCH(tokenizer_operator(self), TOKEN_OPERATOR); */
 
   // Match end of line character
   TOKENIZER_MATCH(tokenizer_single(self, '\n'), TOKEN_EOL);
@@ -213,56 +214,59 @@ token_t *tokenizer_next(tokenizer_t *self) {
   // Match backslash character
   TOKENIZER_MATCH(tokenizer_single(self, '\\'), TOKEN_BACKSLASH);
 
+  // Match dot character
+  TOKENIZER_MATCH(tokenizer_single(self, '.'), TOKEN_DOT);
+
   // Match left paren character
   TOKENIZER_MATCH(tokenizer_single(self, '('), TOKEN_LEFT_PAREN);
 
   // Match right paren character
   TOKENIZER_MATCH(tokenizer_single(self, ')'), TOKEN_RIGHT_PAREN);
 
-  // Match left bracket character
-  TOKENIZER_MATCH(tokenizer_single(self, '['), TOKEN_LEFT_BRACKET);
+  /* // Match left bracket character */
+  /* TOKENIZER_MATCH(tokenizer_single(self, '['), TOKEN_LEFT_BRACKET); */
 
-  // Match right bracket character
-  TOKENIZER_MATCH(tokenizer_single(self, ']'), TOKEN_RIGHT_BRACKET);
+  /* // Match right bracket character */
+  /* TOKENIZER_MATCH(tokenizer_single(self, ']'), TOKEN_RIGHT_BRACKET); */
 
-  // Match left brace character
-  TOKENIZER_MATCH(tokenizer_single(self, '{'), TOKEN_LEFT_BRACE);
+  /* // Match left brace character */
+  /* TOKENIZER_MATCH(tokenizer_single(self, '{'), TOKEN_LEFT_BRACE); */
 
-  // Match right brace character
-  TOKENIZER_MATCH(tokenizer_single(self, '}'), TOKEN_RIGHT_BRACE);
+  /* // Match right brace character */
+  /* TOKENIZER_MATCH(tokenizer_single(self, '}'), TOKEN_RIGHT_BRACE); */
 
-  // Match comma character
-  TOKENIZER_MATCH(tokenizer_single(self, ','), TOKEN_COMMA);
+  /* // Match comma character */
+  /* TOKENIZER_MATCH(tokenizer_single(self, ','), TOKEN_COMMA); */
 
-  // Match right fat-arrow keyword
-  TOKENIZER_MATCH(tokenizer_multiple(self, "=>"), TOKEN_RIGHT_FATARROW);
+  /* // Match right fat-arrow keyword */
+  /* TOKENIZER_MATCH(tokenizer_multiple(self, "=>"), TOKEN_RIGHT_FATARROW); */
 
-  // Match equal character
-  TOKENIZER_MATCH(tokenizer_single(self, '='), TOKEN_EQUAL);
+  /* // Match equal character */
+  /* TOKENIZER_MATCH(tokenizer_single(self, '='), TOKEN_EQUAL); */
 
-  // Match colon character
-  TOKENIZER_MATCH(tokenizer_single(self, ':'), TOKEN_COLON);
+  /* // Match colon character */
+  /* TOKENIZER_MATCH(tokenizer_single(self, ':'), TOKEN_COLON); */
 
-  // Match semi-colon character
-  TOKENIZER_MATCH(tokenizer_single(self, ';'), TOKEN_SEMICOLON);
+  /* // Match semi-colon character */
+  /* TOKENIZER_MATCH(tokenizer_single(self, ';'), TOKEN_SEMICOLON); */
 
-  // Match match keyword token
-  TOKENIZER_MATCH(tokenizer_multiple(self, "match"), TOKEN_MATCH);
+  /* // Match match keyword token */
+  /* TOKENIZER_MATCH(tokenizer_multiple(self, "match"), TOKEN_MATCH); */
 
-  // Match with keyword token
-  TOKENIZER_MATCH(tokenizer_multiple(self, "with"), TOKEN_WITH);
+  /* // Match with keyword token */
+  /* TOKENIZER_MATCH(tokenizer_multiple(self, "with"), TOKEN_WITH); */
 
-  // Match where keyword token
-  TOKENIZER_MATCH(tokenizer_multiple(self, "where"), TOKEN_WHERE);
+  /* // Match where keyword token */
+  /* TOKENIZER_MATCH(tokenizer_multiple(self, "where"), TOKEN_WHERE); */
 
-  // Match do keyword token
-  TOKENIZER_MATCH(tokenizer_multiple(self, "do"), TOKEN_DO);
+  /* // Match do keyword token */
+  /* TOKENIZER_MATCH(tokenizer_multiple(self, "do"), TOKEN_DO); */
 
-  // Match let keyword token
-  TOKENIZER_MATCH(tokenizer_multiple(self, "let"), TOKEN_LET);
+  /* // Match let keyword token */
+  /* TOKENIZER_MATCH(tokenizer_multiple(self, "let"), TOKEN_LET); */
 
-  // Match left-arrow keyword token
-  TOKENIZER_MATCH(tokenizer_multiple(self, "<-"), TOKEN_LEFT_ARROW);
+  /* // Match left-arrow keyword token */
+  /* TOKENIZER_MATCH(tokenizer_multiple(self, "<-"), TOKEN_LEFT_ARROW); */
 
   // If nothing is matched
   eyre_bail("tokenizer_next: could not match any token at %zu:%zu", line,

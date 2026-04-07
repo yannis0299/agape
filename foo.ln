@@ -1,29 +1,3 @@
-uncurry f xy =
-    match xy with
-        (x,y) => f x y
-
-curry f x y = f (x,y)
-
-(+) = !
-
-(.) f g x = g (f x)
-
-fib' u v n = fib' v (u + v) (n - 1)
-
-fib = fib' 0 1
-
-bar x = if x < 1
-          then 3
-          else 4
-
-fold f acc xs =
-    match xs with
-        [] => acc
-        x :: xs => fold f (f x acc) xs
-
-rev = fold (::) []
-
-main = do
-  let xs = rev $ [1, 2, 3]
-  _ <- println xs
-  ret 0
+(\f. 
+(\x. f (x x)) 
+(\x. f (x x)))
