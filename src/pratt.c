@@ -45,61 +45,65 @@ token_t *pratt_expect_token(pratt_t *self, token_kind_t kind) {
 expr_t *pratt_parse_atom(pratt_t *self) {
   expr_t *expr = NULL;
   token_t *token = NULL;
-  printf("pratt_parse_atom: pos = %zu \n", self->pos);
-  while ((token = pratt_peek_token(self))) {
+  while ((token = pratt_next_token(self))) {
     switch (token->kind) {
     case TOKEN_IDENTIFIER:
-      // Eat identifier
-      pratt_next_token(self);
       expr = ga_alloc(sizeof(expr_t));
       expr->kind = EXPR_VARIABLE;
       expr->as.var = token->repr;
       return expr;
     case TOKEN_LEFT_PAREN:
-      // Eat left paren
-      pratt_next_token(self);
       // Parse inner expression
       expr = pratt_parse_expr(self);
       // Expect right paren
       pratt_expect_token(self, TOKEN_RIGHT_PAREN);
       return expr;
     case TOKEN_EOL:
-      // Skip for now
-      pratt_next_token(self);
       continue;
-    case TOKEN_RIGHT_PAREN:
-    case TOKEN_EOF:
-    case TOKEN_BACKSLASH:
-    case TOKEN_DOT:
-    case TOKEN_MAX_KIND:
-      return NULL;
+    default:
+      eyre_bail("pratt_parse_atom: unexpected token %s",
+                TOKEN_PRINT_TABLE[token->kind]);
     }
   }
-  return expr;
+  return NULL;
 }
 
-expr_t *pratt_parse_expr(pratt_t *self) {
-  expr_t *lhs = NULL, *rhs = NULL;
-  expr_t *expr = NULL;
+expr_t *pratt_parse_atoms(pratt_t *self) {
+  expr_t *expr = NULL, *atom = NULL;
   token_t *token = NULL;
-  printf("pratt_parse_expr: pos = %zu \n", self->pos);
   while ((token = pratt_peek_token(self))) {
     switch (token->kind) {
     case TOKEN_IDENTIFIER:
     case TOKEN_LEFT_PAREN:
-      // Parse maybe lhs of application
-      lhs = pratt_parse_atom(self);
-      // Try to parse the rhs of an application
-      rhs = pratt_parse_atom(self);
-      if (rhs == NULL)
-        return lhs;
-      else {
-        expr = ga_alloc(sizeof(expr_t));
-        expr->kind = EXPR_APPLICATION;
-        expr->as.app.lhs = lhs;
-        expr->as.app.rhs = rhs;
-        return expr;
+      atom = pratt_parse_atom(self);
+      if (expr == NULL) {
+        expr = atom;
+      } else {
+        expr_t *app = (expr_t *)ga_alloc(sizeof(expr_t));
+        app->kind = EXPR_APPLICATION;
+        app->as.app.lhs = expr;
+        app->as.app.rhs = atom;
+        expr = app;
       }
+      continue;
+    case TOKEN_EOL:
+      pratt_next_token(self);
+      continue;
+    default:
+      return expr;
+    }
+  }
+  return NULL;
+}
+
+expr_t *pratt_parse_expr(pratt_t *self) {
+  expr_t *expr = NULL, *rhs = NULL;
+  token_t *token = NULL;
+  while ((token = pratt_peek_token(self))) {
+    switch (token->kind) {
+    case TOKEN_IDENTIFIER:
+    case TOKEN_LEFT_PAREN:
+      return pratt_parse_atoms(self);
     case TOKEN_BACKSLASH:
       // Eat backslash
       pratt_next_token(self);
@@ -109,7 +113,7 @@ expr_t *pratt_parse_expr(pratt_t *self) {
       pratt_expect_token(self, TOKEN_DOT);
       // Eat body
       rhs = pratt_parse_expr(self);
-      expr = ga_alloc(sizeof(expr_t));
+      expr = (expr_t *)ga_alloc(sizeof(expr_t));
       expr->kind = EXPR_LAMBDA;
       expr->as.fn.lhs = token->repr;
       expr->as.fn.rhs = rhs;
@@ -118,12 +122,10 @@ expr_t *pratt_parse_expr(pratt_t *self) {
       // Skip for now
       pratt_next_token(self);
       continue;
-    case TOKEN_EOF:
-    case TOKEN_DOT:
-    case TOKEN_RIGHT_PAREN:
-    case TOKEN_MAX_KIND:
-      return NULL;
+    default:
+      eyre_bail("pratt_parse_expr: unexpected token %s",
+                TOKEN_PRINT_TABLE[token->kind]);
     }
   }
-  return expr;
+  return NULL;
 }

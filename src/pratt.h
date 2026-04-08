@@ -77,26 +77,6 @@ static inline void display_expr(expr_t *self, fmt_t *fmt) {
   }
 }
 
-#define EXPR_VAR(x)                                                            \
-  (expr_t){.kind = EXPR_VARIABLE,                                              \
-           .as = {                                                             \
-               .var = str_from(x),                                             \
-           }};
-
-#define EXPR_FN(x, e)                                                          \
-  (expr_t){.kind = EXPR_LAMBDA,                                                \
-           .as = {.fn = {                                                      \
-                      .lhs = str_from(x),                                      \
-                      .rhs = e,                                                \
-                  }}};
-
-#define EXPR_APP(e1, e2)                                                       \
-  (expr_t){.kind = EXPR_APPLICATION,                                           \
-           .as = {.app = {                                                     \
-                      .lhs = e1,                                               \
-                      .rhs = e2,                                               \
-                  }}};
-
 typedef struct {
   TU_t *tu;
   tokenizer_t *tokenizer;
@@ -113,6 +93,8 @@ token_t *pratt_next_token(pratt_t *self);
 token_t *pratt_expect_token(pratt_t *self, token_kind_t kind);
 
 expr_t *pratt_parse_atom(pratt_t *self);
+
+expr_t *pratt_parse_atoms(pratt_t *self);
 
 expr_t *pratt_parse_expr(pratt_t *self);
 
