@@ -18,7 +18,7 @@ LDFLAGS := -lc
 build: $(BUILD_DIR)/$(EXECUTABLE)
 
 run: build
-	@$(BUILD_DIR)/$(EXECUTABLE)
+	@$(BUILD_DIR)/$(EXECUTABLE) $(ARGS)
 
 # link executable
 $(BUILD_DIR)/$(EXECUTABLE): $(OBJS)

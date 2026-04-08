@@ -189,12 +189,6 @@ token_t *tokenizer_next(tokenizer_t *self) {
     self->pos = pos;                                                           \
   }
 
-  // Match left pragma keyword
-  /* TOKENIZER_MATCH(tokenizer_multiple(self, "{:"), TOKEN_LEFT_PRAGMA); */
-
-  /* // Match right pragma keyword */
-  /* TOKENIZER_MATCH(tokenizer_multiple(self, ":}"), TOKEN_RIGHT_PRAGMA); */
-
   /* // Match integer literal */
   /* TOKENIZER_MATCH(tokenizer_integer(self), TOKEN_INTEGER); */
 
@@ -248,6 +242,9 @@ token_t *tokenizer_next(tokenizer_t *self) {
 
   /* // Match semi-colon character */
   /* TOKENIZER_MATCH(tokenizer_single(self, ';'), TOKEN_SEMICOLON); */
+
+  /* // Match pragma keyword token */
+  /* TOKENIZER_MATCH(tokenizer_multiple(self, "pragma"), TOKEN_PRAGMA); */
 
   /* // Match match keyword token */
   /* TOKENIZER_MATCH(tokenizer_multiple(self, "match"), TOKEN_MATCH); */
