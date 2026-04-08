@@ -96,8 +96,53 @@ expr_t *pratt_parse_atoms(pratt_t *self) {
   return NULL;
 }
 
+expr_t *pratt_parse_lambda(pratt_t *self) {
+  expr_t *expr = NULL;
+  token_t *token = NULL;
+  vec_token_t acc = vec_token_new(1);
+  while ((token = pratt_peek_token(self))) {
+    switch (token->kind) {
+    case TOKEN_BACKSLASH:
+      // Eat backslash
+      pratt_next_token(self);
+      // Eat first identifier
+      token = pratt_expect_token(self, TOKEN_IDENTIFIER);
+      vec_token_push(&acc, *token);
+      continue;
+    case TOKEN_IDENTIFIER:
+      // Eat identifier
+      pratt_next_token(self);
+      vec_token_push(&acc, *token);
+      continue;
+    case TOKEN_DOT:
+      if (acc.len == 0) {
+        eyre_bail("pratt_parse_lambda: expected at least one identifier "
+                  "between backslash and dot");
+      } else {
+        // Eat dot
+        pratt_expect_token(self, TOKEN_DOT);
+        // Eat body
+        expr = pratt_parse_expr(self);
+        // Reduce identifier tower to chained lambdas
+        for (isize idx = acc.len - 1; idx >= 0; idx--) {
+          token = &acc.raw[idx];
+          expr_t *fn = (expr_t *)ga_alloc(sizeof(expr_t));
+          fn->kind = EXPR_LAMBDA;
+          fn->as.fn.lhs = token->repr;
+          fn->as.fn.rhs = expr;
+          expr = fn;
+        }
+        return expr;
+      }
+    default:
+      eyre_bail("pratt_parse_lambda: unexpected token %s",
+                TOKEN_PRINT_TABLE[token->kind]);
+    }
+  }
+  return NULL;
+}
+
 expr_t *pratt_parse_expr(pratt_t *self) {
-  expr_t *expr = NULL, *rhs = NULL;
   token_t *token = NULL;
   while ((token = pratt_peek_token(self))) {
     switch (token->kind) {
@@ -105,19 +150,7 @@ expr_t *pratt_parse_expr(pratt_t *self) {
     case TOKEN_LEFT_PAREN:
       return pratt_parse_atoms(self);
     case TOKEN_BACKSLASH:
-      // Eat backslash
-      pratt_next_token(self);
-      // Eat identifier
-      token = pratt_expect_token(self, TOKEN_IDENTIFIER);
-      // Eat dot
-      pratt_expect_token(self, TOKEN_DOT);
-      // Eat body
-      rhs = pratt_parse_expr(self);
-      expr = (expr_t *)ga_alloc(sizeof(expr_t));
-      expr->kind = EXPR_LAMBDA;
-      expr->as.fn.lhs = token->repr;
-      expr->as.fn.rhs = rhs;
-      return expr;
+      return pratt_parse_lambda(self);
     case TOKEN_EOL:
       // Skip for now
       pratt_next_token(self);

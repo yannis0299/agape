@@ -82,18 +82,17 @@ usize tokenizer_single(tokenizer_t *self, char e) {
 /*   } */
 /* } */
 
-/* #define TOKENIZER_RESERVED_GUARD(table, str) \ */
-/*   usize tlen = sizeof(table) / sizeof(table[0]); \ */
-/*   for (usize idx = 0; idx < tlen; idx++) { \ */
-/*     usize slen = strlen(table[idx]); \ */
-/*     if ((slen == span) && strncmp(str, table[idx], span) == 0) { \ */
-/*       return 0; \ */
-/*     } \ */
-/*   } */
+#define TOKENIZER_RESERVED_GUARD(table, str)                                   \
+  usize tlen = sizeof(table) / sizeof(table[0]);                               \
+  for (usize idx = 0; idx < tlen; idx++) {                                     \
+    usize slen = strlen(table[idx]);                                           \
+    if ((slen == span) && strncmp(str, table[idx], span) == 0) {               \
+      return 0;                                                                \
+    }                                                                          \
+  }
 
-/* static const char *TOKENIZER_RESERVED_NAMES[] = {"match", "with", "where",
- * "do", */
-/*                                                  "let"}; */
+static const char *TOKENIZER_RESERVED_NAMES[] = {"pragma", "match", "with",
+                                                 "where",  "do",    "let"};
 
 usize tokenizer_identifier(tokenizer_t *self) {
   usize pos = self->pos;
@@ -114,8 +113,8 @@ usize tokenizer_identifier(tokenizer_t *self) {
       tokenizer_next_char(self);
       span++;
     }
-    /* TOKENIZER_RESERVED_GUARD(TOKENIZER_RESERVED_NAMES, */
-    /*                          ((char *)self->tu->contents.raw + pos)); */
+    TOKENIZER_RESERVED_GUARD(TOKENIZER_RESERVED_NAMES,
+                             ((char *)self->tu->contents.raw + pos));
     return span;
   } else {
     return 0;

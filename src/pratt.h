@@ -96,6 +96,8 @@ expr_t *pratt_parse_atom(pratt_t *self);
 
 expr_t *pratt_parse_atoms(pratt_t *self);
 
+expr_t *pratt_parse_lambda(pratt_t *self);
+
 expr_t *pratt_parse_expr(pratt_t *self);
 
 #endif // PRATT_H
