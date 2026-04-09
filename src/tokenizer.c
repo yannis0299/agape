@@ -45,18 +45,18 @@ usize tokenizer_single(tokenizer_t *self, char e) {
     return 0;
 }
 
-/* usize tokenizer_multiple(tokenizer_t *self, const char *e) { */
-/*   usize len = strlen(e); */
-/*   char c; */
-/*   for (usize idx = 0; idx < len; idx++) { */
-/*     if ((c = tokenizer_peek_char(self)) && e[idx] == c) { */
-/*       tokenizer_next_char(self); */
-/*     } else { */
-/*       return 0; */
-/*     } */
-/*   } */
-/*   return len; */
-/* } */
+usize tokenizer_multiple(tokenizer_t *self, const char *e) {
+  usize len = strlen(e);
+  char c;
+  for (usize idx = 0; idx < len; idx++) {
+    if ((c = tokenizer_peek_char(self)) && e[idx] == c) {
+      tokenizer_next_char(self);
+    } else {
+      return 0;
+    }
+  }
+  return len;
+}
 
 /* usize tokenizer_integer(tokenizer_t *self) { */
 /*   usize span = 0; */
@@ -222,11 +222,11 @@ token_t *tokenizer_next(tokenizer_t *self) {
   /* // Match right bracket character */
   /* TOKENIZER_MATCH(tokenizer_single(self, ']'), TOKEN_RIGHT_BRACKET); */
 
-  /* // Match left brace character */
-  /* TOKENIZER_MATCH(tokenizer_single(self, '{'), TOKEN_LEFT_BRACE); */
+  // Match left brace character
+  TOKENIZER_MATCH(tokenizer_single(self, '{'), TOKEN_LEFT_BRACE);
 
-  /* // Match right brace character */
-  /* TOKENIZER_MATCH(tokenizer_single(self, '}'), TOKEN_RIGHT_BRACE); */
+  // Match right brace character
+  TOKENIZER_MATCH(tokenizer_single(self, '}'), TOKEN_RIGHT_BRACE);
 
   /* // Match comma character */
   /* TOKENIZER_MATCH(tokenizer_single(self, ','), TOKEN_COMMA); */
@@ -234,14 +234,14 @@ token_t *tokenizer_next(tokenizer_t *self) {
   /* // Match right fat-arrow keyword */
   /* TOKENIZER_MATCH(tokenizer_multiple(self, "=>"), TOKEN_RIGHT_FATARROW); */
 
-  /* // Match equal character */
-  /* TOKENIZER_MATCH(tokenizer_single(self, '='), TOKEN_EQUAL); */
+  // Match equal character
+  TOKENIZER_MATCH(tokenizer_single(self, '='), TOKEN_EQUAL);
 
   /* // Match colon character */
   /* TOKENIZER_MATCH(tokenizer_single(self, ':'), TOKEN_COLON); */
 
-  /* // Match semi-colon character */
-  /* TOKENIZER_MATCH(tokenizer_single(self, ';'), TOKEN_SEMICOLON); */
+  // Match semi-colon character
+  TOKENIZER_MATCH(tokenizer_single(self, ';'), TOKEN_SEMICOLON);
 
   /* // Match pragma keyword token */
   /* TOKENIZER_MATCH(tokenizer_multiple(self, "pragma"), TOKEN_PRAGMA); */
@@ -252,8 +252,8 @@ token_t *tokenizer_next(tokenizer_t *self) {
   /* // Match with keyword token */
   /* TOKENIZER_MATCH(tokenizer_multiple(self, "with"), TOKEN_WITH); */
 
-  /* // Match where keyword token */
-  /* TOKENIZER_MATCH(tokenizer_multiple(self, "where"), TOKEN_WHERE); */
+  // Match where keyword token
+  TOKENIZER_MATCH(tokenizer_multiple(self, "where"), TOKEN_WHERE);
 
   /* // Match do keyword token */
   /* TOKENIZER_MATCH(tokenizer_multiple(self, "do"), TOKEN_DO); */

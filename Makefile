@@ -1,7 +1,7 @@
 SRC_DIRS   := src
 VCS_DIR    := .git
 BUILD_DIR  := target
-EXECUTABLE := agapec
+EXECUTABLE := agape
 
 SRCS := $(shell find $(SRC_DIRS) -name *.c -or -name *.s)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
@@ -12,7 +12,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CC      := clang-20
 CFLAGS  := $(INC_FLAGS) -MMD -MP
-CFLAGS  += -Wall -std=c23 -march=native
+CFLAGS  += -Wall -std=c23 -march=native -O3
 LDFLAGS := -lc
 
 build: $(BUILD_DIR)/$(EXECUTABLE)
