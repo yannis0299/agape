@@ -1,0 +1,9 @@
+
+foo = x
+  where 
+    x = z
+
+    z = \t .
+              t
+
+bar = z

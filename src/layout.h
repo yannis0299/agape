@@ -16,6 +16,7 @@ typedef struct {
   TU_t *tu;
   tokenizer_t *tokenizer;
   slice_token_t stream;
+  usize pos;
   vec_token_t tokens;
   vec_usize_t stack;
 } layout_t;

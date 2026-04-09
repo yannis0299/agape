@@ -2,6 +2,19 @@ f = \x y. x y
 
 Y = \f. (\x. f (x x)) (\x. f (x x))
 
+_zero = \_ x. x
+_succ = \n f x. n f (f x)
+
+_0 = _zero
+_1 = _succ _0
+_2 = _succ _1
+_3 = _succ _2
+_4 = _succ _3
+_5 = _succ _4
+_6 = _succ _5
+_7 = _succ _6
+_8 = _succ _7
+
 main = g (Y f)
   where
     g = \z. z
