@@ -4,12 +4,15 @@
 #include <stdio.h>
 
 #include "generics.h"
+#include "layout.h"
 #include "prelude.h"
 #include "str.h"
 #include "tokenizer.h"
 #include "translation_unit.h"
 
 typedef enum {
+  EXPR_TOP_LEVEL,
+  EXPR_WHERE,
   EXPR_VARIABLE,
   EXPR_LAMBDA,
   EXPR_APPLICATION,
@@ -17,14 +20,24 @@ typedef enum {
 } expr_kind_t;
 
 static const char *EXPR_PRINT_TABLE[EXPR_MAX_KIND] = {
-    "EXPR_VARIABLE",
-    "EXPR_LAMBDA",
-    "EXPR_APPLICATION",
+    "EXPR_TOP_LEVEL", "EXPR_WHERE",       "EXPR_VARIABLE",
+    "EXPR_LAMBDA",    "EXPR_APPLICATION",
 };
 
 typedef struct _expr {
   expr_kind_t kind;
   union {
+    struct {
+      usize count;
+      str_t *idents;
+      struct _expr *binds;
+    } top_level;
+    struct {
+      struct _expr *expr;
+      usize count;
+      str_t *idents;
+      struct _expr *binds;
+    } where;
     str_t var;
     struct {
       str_t lhs;
@@ -38,7 +51,40 @@ typedef struct _expr {
 } expr_t;
 
 static inline void display_expr(expr_t *self, fmt_t *fmt) {
+  usize idx;
   switch (self->kind) {
+  case EXPR_TOP_LEVEL:
+    fprintf(fmt->stream, "TopLevel({");
+    fmt->pad += 2;
+    for (idx = 0; idx < self->as.top_level.count; idx++) {
+      fprintf(fmt->stream, "\n%*s%s", (int)fmt->pad, "", "ident=");
+      fprintf(fmt->stream, "\"%s\",",
+              (char *)self->as.top_level.idents[idx].raw);
+      fprintf(fmt->stream, "\n%*s%s", (int)fmt->pad, "", "bind=");
+      display_expr(&self->as.top_level.binds[idx], fmt);
+      if (idx != self->as.top_level.count - 1)
+        fprintf(fmt->stream, ";");
+    }
+    fmt->pad -= 2;
+    fprintf(fmt->stream, "})");
+    break;
+  case EXPR_WHERE:
+    fprintf(fmt->stream, "Where(");
+    fmt->pad += 2;
+    fprintf(fmt->stream, "\n%*s%s", (int)fmt->pad, "", "expr=");
+    display_expr(self->as.where.expr, fmt);
+    fprintf(fmt->stream, "\n%*s%s", (int)fmt->pad, "", "binds={");
+    for (idx = 0; idx < self->as.where.count; idx++) {
+      fprintf(fmt->stream, "\n%*s%s", (int)fmt->pad, "", "ident=");
+      fprintf(fmt->stream, "\"%s\",", (char *)self->as.where.idents[idx].raw);
+      fprintf(fmt->stream, "\n%*s%s", (int)fmt->pad, "", "bind=");
+      display_expr(&self->as.where.binds[idx], fmt);
+      if (idx != self->as.where.count - 1)
+        fprintf(fmt->stream, ";");
+    }
+    fmt->pad -= 2;
+    fprintf(fmt->stream, "})");
+    break;
   case EXPR_VARIABLE:
     fprintf(fmt->stream, "Var(\"%s\")", (char *)self->as.var.raw);
     break;
@@ -74,8 +120,11 @@ static inline void display_expr(expr_t *self, fmt_t *fmt) {
   case EXPR_MAX_KIND:
     fprintf(fmt->stream, ")");
     break;
+    break;
   }
 }
+
+impl_generics(expr_t, expr);
 
 typedef struct {
   TU_t *tu;
@@ -84,7 +133,7 @@ typedef struct {
   slice_token_t tokens;
 } pratt_t;
 
-pratt_t pratt_new_from_tokenizer(tokenizer_t *tokenizer);
+pratt_t pratt_new_from_layout(layout_t *layout);
 
 token_t *pratt_peek_token(pratt_t *self);
 
@@ -98,6 +147,10 @@ expr_t *pratt_parse_atoms(pratt_t *self);
 
 expr_t *pratt_parse_lambda(pratt_t *self);
 
+expr_t *pratt_parse_bindings(pratt_t *self);
+
 expr_t *pratt_parse_expr(pratt_t *self);
+
+expr_t *pratt_parse_top_level(pratt_t *self);
 
 #endif // PRATT_H

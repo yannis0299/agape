@@ -1,9 +1,10 @@
+x = z
 
 foo = x
-  where 
-    x = z
 
-    z = \t .
+z = \t .
               t
 
-bar = z
+bar = id z
+  where
+    id = \u. u u

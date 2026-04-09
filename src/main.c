@@ -25,8 +25,8 @@ void do_file(const char *filename) {
   println(vec_token, &(layout.tokens));
 
   printf("--- Expr: ---------------------\n");
-  pratt_t pratt = pratt_new_from_tokenizer(&tokenizer);
-  expr_t *expr = pratt_parse_expr(&pratt);
+  pratt_t pratt = pratt_new_from_layout(&layout);
+  expr_t *expr = pratt_parse_top_level(&pratt);
   println(expr, expr);
 }
 

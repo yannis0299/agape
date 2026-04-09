@@ -2,12 +2,17 @@
 #define STR_H
 
 #include "arena.h"
+#include "generics.h"
 #include "prelude.h"
 
 typedef struct {
   u8 *raw;
   usize len, cap;
 } str_t;
+
+impl_display(str_t, str) { fprintf(fmt->stream, "\"%s\"", (char *)self->raw); }
+
+impl_generics(str_t, str);
 
 str_t str_new(usize cap);
 

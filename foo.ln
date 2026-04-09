@@ -15,6 +15,6 @@ _6 = _succ _5
 _7 = _succ _6
 _8 = _succ _7
 
+g = \z. z
+
 main = g (Y f)
-  where
-    g = \z. z
